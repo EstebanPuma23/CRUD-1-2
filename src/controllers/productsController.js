@@ -39,13 +39,12 @@ const controller = {
             discount: +discount,
             category,
             description: description.trim(),
-            image: 'default-image.png'
+            image: req.file ? req.file.filename : 'default-image.png'
         }
 
         products.push(product)
 
         fs.writeFileSync(path.join(__dirname, '..', 'data', 'productsDataBase.json'), JSON.stringify(products, null, 3), 'utf-8');
-
         res.redirect('/products')
 
 
@@ -58,6 +57,9 @@ const controller = {
     // Update - Method to update
     update: (req, res) => {
         const { name, price, description, discount, category } = req.body
+        const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+        let product = products.find(product => product.id === +req.params.id);
+
 
         let productModified = {
             id: +req.params.id,
@@ -66,12 +68,13 @@ const controller = {
             discount: +discount,
             category,
             description: description.trim(),
-            image: 'default-image.png'
+            image: req.file ? req.file.filename : product.image
         }
 
         let productsModified = products.map(product => product.id === +req.params.id ? productModified : product)
 
         fs.writeFileSync(path.join(__dirname, '..', 'data', 'productsDataBase.json'), JSON.stringify(productsModified, null, 3), 'utf-8');
+
 
         res.redirect('/products/detail/' + req.params.id)
 
@@ -81,7 +84,6 @@ const controller = {
     destroy: (req, res) => {
         let productsModified = products.filter(product => product.id !== +req.params.id)
         fs.writeFileSync(path.join(__dirname, '..', 'data', 'productsDataBase.json'), JSON.stringify(productsModified, null, 3), 'utf-8');
-
         res.redirect('/products')
     }
 };
